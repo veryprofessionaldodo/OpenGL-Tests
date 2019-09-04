@@ -6,7 +6,7 @@
         {
             "label": "Compile OpenGL",
             "type": "shell",
-            "command": "g++ -lX11 -I/include/** -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW src/*.cpp -o Application",
+            "command": "g++ -lX11 -Iinclude -I/include/glad/*.h -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW src/*.c src/*.cpp -o Application",
             "problemMatcher": [],
             "group": "build"
         },
