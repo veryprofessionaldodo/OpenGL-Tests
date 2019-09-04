@@ -6,14 +6,16 @@
         {
             "label": "Compile OpenGL",
             "type": "shell",
-            "command": "g++ -lglut -lGL -lglfw -lGLU -lGLEW src/*.cpp -o Application",
-            "problemMatcher": []
+            "command": "g++ -lX11 -I/include/** -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW src/*.cpp -o Application",
+            "problemMatcher": [],
+            "group": "build"
         },
         {
             "label": "Run OpenGL Application",
             "type": "shell",
-            "command": "./Application",
-            "problemMatcher": []
+            "command": "primusrun ./Application",
+            "problemMatcher": [],
+            "group": "build"
         }
     ]
 }
