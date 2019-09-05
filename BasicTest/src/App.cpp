@@ -11,6 +11,22 @@ void process_input(GLFWwindow* window) {
         glfwSetWindowShouldClose(window, true);
 }
 
+void render_loop(GLFWwindow* window) {
+    int color = 0;
+
+    while(!glfwWindowShouldClose(window)) {
+        process_input(window);
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();    
+
+        color += 1; 
+
+        glClearColor(((color / 2) % 255)/255.0f, ((color / 3) % 255)/255.0f, ((color / 4) % 255)/255.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+}
+
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -35,19 +51,21 @@ int main() {
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
 
-    int color = 0;
+    float vertices[] = {
+        -0.5f, -0.5f, 0.0f,
+        0.0f, 0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f
+    };
 
-    while(!glfwWindowShouldClose(window)) {
-        process_input(window);
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();    
+    unsigned int vertex_shader;
+    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 
-        color += 1; 
-
-        glClearColor(((color / 2) % 255)/255.0f, ((color / 3) % 255)/255.0f, ((color / 4) % 255)/255.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
+    render_loop(window);
 
     glfwTerminate();
  
