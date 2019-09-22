@@ -13,7 +13,7 @@
         {
             "label": "Run OpenGL Application",
             "type": "shell",
-            "command": "primusrun ./Application",
+            "command": "./Application",
             "problemMatcher": [],
             "group": "build"
         }
