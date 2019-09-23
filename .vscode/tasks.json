@@ -1,0 +1,28 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile OpenGL",
+            "type": "shell",
+            "command": "cd MainApp && g++ -lX11 -Iinclude -I/include/glad/*.h -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW src/*.c src/*.cpp -o ../Application",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Run OpenGL Application",
+            "type": "shell",
+            "command": "./Application",
+            "problemMatcher": [],
+            "group": "build"
+        },
+        {
+            "label": "Compile Exercise",
+            "type": "shell",
+            "command": "cd Exercises && g++ -lX11 -Iinclude -I/include/glad/*.h -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW glad.c hello-triangle/1.cpp -o ../Application",
+            "problemMatcher": [],
+            "group": "build"
+        },
+    ]
+}
