@@ -16,7 +16,7 @@ void process_input(GLFWwindow* window) {
 }
 
 string get_shader_source(string filename) {
-    string filepath = "/home/workingdodo/OpenGL-Tests/BasicTest/src/shaders/" + filename; 
+    string filepath = "/home/workingdodo/OpenGL-Tests/Exercises/shaders/" + filename; 
     ifstream file(filepath);
     string shader_source = "";
     string line;
@@ -62,41 +62,6 @@ int main() {
 
     // Used when window is resized
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
-
-    float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        1.0f, 0.5f, 0.0f
-    };
-
-    unsigned int indices[] = {
-        0,1,2,
-        1,2,3
-    };
-    
-    // Generate vertex buffer object 
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);  
-    
-    glBindVertexArray(VAO);
-
-    // Assign buffer tyoe to GL_ARRAY_BUFFER
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    // Copy information from vertices to the vbo
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // Generate EBO for index storage
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-    
-    // Associate ELEMENT ARRAY BUFFER TO EBO and pass in indices information
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
     // Compile vertex shader in run time
     unsigned int vertex_shader;
@@ -150,13 +115,38 @@ int main() {
     // Now we use the program (after we set all the states including the shaders)
     glUseProgram(shader_program);
 
-    glBindVertexArray(VAO);
-
     // Now that everything is linked, delete the shaders
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);  
 
-    // We use this to determine how the vertex information is processed. From learnopengl.com:
+    float vertices1[] = {
+        -1.0f, -0.5f, 0.0f,
+        -0.5f, 0.5f, 0.0f,
+        0.0f, -0.5f, 0.0f
+    };
+
+    float vertices2[] = {
+        0.0f, -0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f,
+        1.0f, -0.5f, 0.0f
+    };
+
+    // Generate vertex buffer object 
+    unsigned int VBOs[2];
+    glGenBuffers(2, VBOs);
+
+    unsigned int VAOs[2];
+    glGenVertexArrays(2, VAOs);  
+
+    glBindVertexArray(VAOs[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);   
+
+    glBindVertexArray(VAOs[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);   
 
@@ -175,7 +165,11 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // Will now draw information present from ELEMENT ARRAY BUFFER
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(VAOs[0]);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices1));
+
+        glBindVertexArray(VAOs[1]);
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices2));
     }
 
     glfwTerminate();
