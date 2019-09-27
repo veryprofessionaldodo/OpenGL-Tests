@@ -17,7 +17,6 @@ void processInput(GLFWwindow* window) {
         glfwSetWindowShouldClose(window, true);
 }
 
-
 int main() {
     // Window setup
     glfwInit();
@@ -84,7 +83,7 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/MainApp/shaders/offset.vs", "/home/workingdodo/OpenGL-Tests/MainApp/shaders/shader.fs"); 
+    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/shaders/basicShader.vs", "/home/workingdodo/OpenGL-Tests/shaders/basicShader.fs"); 
     shader.use();
 
     glBindVertexArray(VAO);

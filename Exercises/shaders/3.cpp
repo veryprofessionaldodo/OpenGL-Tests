@@ -51,10 +51,10 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);  
 
     float vertices[] = {
-        // vertex info     // color info
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-        -0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+        // vertex info   
+        -0.5f, -0.5f, 0.0f,
+        -0.0f, 0.5f, 0.0f, 
+        0.5f, -0.5f, 0.0f
     };
 
     unsigned int indices[] = {
@@ -84,19 +84,15 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/shaders/offset.vs", "/home/workingdodo/OpenGL-Tests/shaders/basicShader.fs"); 
+    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/shaders/vertexColPosition.vs", "/home/workingdodo/OpenGL-Tests/shaders/basicShader.fs"); 
     shader.use();
 
     glBindVertexArray(VAO);
 
     // We use this to determine how the vertex information is processed. From learnopengl.com:
     // Position (location = 0)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);   
-
-    // Color (location = 1)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(1);   
 
     // Render loop
     float color = 0;
@@ -111,7 +107,7 @@ int main() {
 
         glClearColor(sin(color/2) , sin(color / 3), sin(color / 4), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        
+
         float time = glfwGetTime();
         /* 
         float red = sin(time);
@@ -123,7 +119,7 @@ int main() {
         glUniform4f(shader_color_location, red, green, blue, 1.0f);
         */
 
-        shader.setUniform3f("offset", sin(time), sin(time/1.4f) , sin(time*2.0f));
+        shader.setUniform3f("offset",sin(time)*0.5f, sin(time/1.3f)*0.5f, sin(time*1.3f)*0.5f);
 
         // Will now draw information present from ELEMENT ARRAY BUFFER
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

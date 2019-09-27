@@ -20,7 +20,7 @@
         {
             "label": "Compile Exercise",
             "type": "shell",
-            "command": "g++ -lX11 -Iinclude -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW include/glad/*.c include/shaders/* Exercises/shaders/2.cpp -o Application",
+            "command": "g++ -lX11 -Iinclude -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW include/glad/*.c include/shaders/* Exercises/shaders/3.cpp -o Application",
             "problemMatcher": [],
             "group": "build"
         },

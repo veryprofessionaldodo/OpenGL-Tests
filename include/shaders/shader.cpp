@@ -8,8 +8,8 @@ Shader::Shader(string vertexPath, string fragmentPath)
     ifstream fragmentFile(fragmentPath);
 
     // ensure ifstream objects can throw exceptions:
-    vertexFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-    fragmentFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+    //vertexFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+    //fragmentFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
     
     string vertexShaderCode = "";
     string fragmentShaderCode = "";
