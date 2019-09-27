@@ -1,35 +1,22 @@
 #include <iostream>
 #include <fstream>
+#include <math.h>
+#include "shader.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 using namespace std;
 
 // Update the glViewport based on the new size
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void process_input(GLFWwindow* window) {
+void processInput(GLFWwindow* window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
 
-string get_shader_source(string filename) {
-    string filepath = "/home/workingdodo/OpenGL-Tests/MainApp/shaders/" + filename; 
-    ifstream file(filepath);
-    string shader_source = "";
-    string line;
-
-    if (file.is_open())  {
-        while (getline (file,line) ) {
-            shader_source += line + '\n';
-            // cout << line << endl;
-        }
-        file.close();
-    }
-    return shader_source;
-}
 
 int main() {
     // Window setup
@@ -61,18 +48,17 @@ int main() {
     glViewport(0, 0, 800, 600);
 
     // Used when window is resized
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);  
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);  
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        1.0f, 0.5f, 0.0f
+        // vertex info     // color info
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+        -0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
     };
 
     unsigned int indices[] = {
-        0,1,2,
-        1,2,3
+        0,1,2
     };
     
     // Generate vertex buffer object 
@@ -98,85 +84,50 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    // Compile vertex shader in run time
-    unsigned int vertex_shader;
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    
-    string vertex_shader_content = get_shader_source("vertex_shader.glsl");
-    const char* vertex_shader_source = vertex_shader_content.c_str();
-    
-    glShaderSource(vertex_shader, 1, &vertex_shader_source, NULL);
-    glCompileShader(vertex_shader);
-
-    // Compile Fragment shader in run time
-    unsigned int fragment_shader;
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    string fragment_shader_content = get_shader_source("fragment_shader.glsl");
-    const char* fragment_shader_source = fragment_shader_content.c_str();
-
-    glShaderSource(fragment_shader, 1, &fragment_shader_source, NULL);
-    glCompileShader(fragment_shader);
-
-    // Check to see if shader was compiled
-    int  success;
-    char infoLog[512];
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-
-    if(!success) {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-    // Check to see if shader was compiled
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-
-    if(!success) {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-    // Create shader program
-    unsigned int shader_program;
-    shader_program = glCreateProgram();
-
-    // Attach the new shaders
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    
-    // Link the final program
-    glLinkProgram(shader_program);
-
-    // Now we use the program (after we set all the states including the shaders)
-    glUseProgram(shader_program);
+    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/MainApp/shaders/shader.vs", "/home/workingdodo/OpenGL-Tests/MainApp/shaders/shader.fs"); 
+    shader.use();
 
     glBindVertexArray(VAO);
 
-    // Now that everything is linked, delete the shaders
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);  
-
     // We use this to determine how the vertex information is processed. From learnopengl.com:
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // Position (location = 0)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);   
 
+    // Color (location = 1)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);   
+
     // Render loop
-    int color = 0;
+    float color = 0;
 
     while(!glfwWindowShouldClose(window)) {
-        process_input(window);
+        processInput(window);
 
         glfwSwapBuffers(window);
         glfwPollEvents();    
 
-        color += 1; 
+        color += 0.01f; 
 
-        glClearColor(((color / 2) % 255)/255.0f, ((color / 3) % 255)/255.0f, ((color / 4) % 255)/255.0f, 1.0f);
+        glClearColor(sin(color/2) , sin(color / 3), sin(color / 4), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        /* 
+        float time = glfwGetTime();
+        float red = sin(time);
+        float green = sin(time/2);
+        float blue = sin(time*2);
+
+        unsigned int shader_color_location = glGetUniformLocation(shader_program, "shaderColor");
+
+        glUniform4f(shader_color_location, red, green, blue, 1.0f);
+        */
 
         // Will now draw information present from ELEMENT ARRAY BUFFER
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     }
+    
+    shader.cleanup();
 
     glfwTerminate();
  

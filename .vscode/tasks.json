@@ -20,7 +20,7 @@
         {
             "label": "Compile Exercise",
             "type": "shell",
-            "command": "cd Exercises && g++ -lX11 -Iinclude -I/include/glad/*.h -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW glad.c hello-triangle/3.cpp -o ../Application",
+            "command": "cd Exercises && g++ -lX11 -Iinclude -I/../MainApp/include/glad/*.h -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW glad.c hello-triangle/3.cpp -o ../Application",
             "problemMatcher": [],
             "group": "build"
         },
