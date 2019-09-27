@@ -112,8 +112,11 @@ int main() {
         glClearColor(sin(color/2) , sin(color / 3), sin(color / 4), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        /* 
+        
+
+        
         float time = glfwGetTime();
+        /* 
         float red = sin(time);
         float green = sin(time/2);
         float blue = sin(time*2);
@@ -122,6 +125,8 @@ int main() {
 
         glUniform4f(shader_color_location, red, green, blue, 1.0f);
         */
+
+        shader.setUniform3f("offset",sin(time)*0.5f, sin(time/1.3f)*0.5f, sin(time*1.3f)*0.5f);
 
         // Will now draw information present from ELEMENT ARRAY BUFFER
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

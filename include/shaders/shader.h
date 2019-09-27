@@ -26,9 +26,10 @@ class Shader
     void use();
     
     // utility uniform functions
-    void setBool(const std::string &name, bool value) const;
-    void setInt(const std::string &name, int value) const;
-    void setFloat(const std::string &name, float value) const;
+    void setBool(const string &name, bool v) const;
+    void setInt(const string &name, int v) const;
+    void setFloat(const string &name, float v) const;
+    void setUniform3f(const string &name, float v1, float v2, float v3) const;
 
     // Delete shader
     void cleanup();

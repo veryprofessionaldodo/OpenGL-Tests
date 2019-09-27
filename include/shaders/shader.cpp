@@ -22,7 +22,7 @@ Shader::Shader(string vertexPath, string fragmentPath)
             vertexFile.close();
         }
     } catch (exception e) {
-        cout << "Error reading from vertex shader file";
+        cout << "Error reading from vertex shader file.\n";
     }
     try {
         if (fragmentFile.is_open())  {
@@ -32,7 +32,7 @@ Shader::Shader(string vertexPath, string fragmentPath)
             fragmentFile.close();
         }
     } catch (exception e) {
-        cout << "Error reading from fragment shader file";
+        cout << "Error reading from fragment shader file.\n";
     }
 
     const char* vertexShaderSource = vertexShaderCode.c_str();
@@ -92,6 +92,11 @@ void Shader::setFloat(const std::string &name, float value) const
 { 
     glUniform1f(glGetUniformLocation(ID, name.c_str()), value); 
 } 
+
+void Shader::setUniform3f(const string &name, float v1, float v2, float v3) const
+{
+    glUniform3f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3); 
+}
 
 void Shader::cleanup() 
 {
