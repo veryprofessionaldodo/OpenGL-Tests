@@ -5,6 +5,9 @@
 #include <glad/glad.h>
 #include "stb_image.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 
@@ -117,7 +120,7 @@ int main() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    // stbi_image_free(data);
+    stbi_image_free(data);
 
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);

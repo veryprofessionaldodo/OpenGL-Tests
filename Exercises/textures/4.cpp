@@ -147,7 +147,6 @@ int main() {
 
 
         glGetUniformfv(shader.ID, glGetUniformLocation(shader.ID, "mixValue"), &currentMixValue);
-        cout << currentMixValue << endl;
         if (glfwGetKey(window, GLFW_KEY_UP)) {
             currentMixValue += 0.01f;
             glUniform1f(glGetUniformLocation(shader.ID, "mixValue"), currentMixValue);
