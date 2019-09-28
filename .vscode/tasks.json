@@ -6,7 +6,7 @@
         {
             "label": "Compile OpenGL",
             "type": "shell",
-            "command": "g++ -lX11 -Iinclude -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW include/glad/*.c include/shaders/* MainApp/src/*.cpp -o Application",
+            "command": "g++ -lX11 -Iinclude -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW include/glad/*.c include/*.cpp include/shaders/* MainApp/src/*.cpp -o Application",
             "problemMatcher": [],
             "group": "build"
         },
@@ -20,7 +20,7 @@
         {
             "label": "Compile Exercise",
             "type": "shell",
-            "command": "g++ -lX11 -Iinclude -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW include/glad/*.c include/shaders/* Exercises/shaders/3.cpp -o Application",
+            "command": "g++ -lX11 -Iinclude -lpthread -lXrandr -lXi -ldl -lglut -lGL -lglfw -lGLU -lGLEW include/glad/*.c include/*.cpp include/shaders/* Exercises/textures/4.cpp -o Application",
             "problemMatcher": [],
             "group": "build"
         },

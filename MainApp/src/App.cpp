@@ -3,6 +3,7 @@
 #include <math.h>
 #include "shaders/shader.h"
 #include <glad/glad.h>
+#include "stb_image.h"
 #include <GLFW/glfw3.h>
 
 using namespace std;
@@ -50,14 +51,16 @@ int main() {
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);  
 
     float vertices[] = {
-        // vertex info     // color info
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-        -0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
+        // vertex info     // color info    // Tex Coords
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f
     };
 
     unsigned int indices[] = {
-        0,1,2
+        0,1,2,
+        1,2,3
     };
     
     // Generate vertex buffer object 
@@ -83,19 +86,56 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/shaders/basicShader.vs", "/home/workingdodo/OpenGL-Tests/shaders/basicShader.fs"); 
+    Shader shader = Shader("shaders/basicShader.vs", "shaders/basicShader.fs"); 
     shader.use();
+
+    // Textures
+    unsigned int texID[2];
+    glGenTextures(2, texID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_set_flip_vertically_on_load(true);
+
+    int width, height, nrChannels;
+    unsigned char*data = stbi_load("res/container.jpg", &width, &height, &nrChannels, 0);    
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,data);
+    glGenerateMipmap(GL_TEXTURE_2D);    
+
+    stbi_image_free(data);
+    data = stbi_load("res/awesomeface.png", &width, &height, &nrChannels, 0);
+    
+    glActiveTexture(GL_TEXTURE1);
+    
+    glBindTexture(GL_TEXTURE_2D, texID[1]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    // stbi_image_free(data);
+
+    shader.setInt("texture1", 0);
+    shader.setInt("texture2", 1);
 
     glBindVertexArray(VAO);
 
     // We use this to determine how the vertex information is processed. From learnopengl.com:
     // Position (location = 0)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);   
 
     // Color (location = 1)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);   
+
+    // TexCoords (location = 2)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);   
 
     // Render loop
     float color = 0;

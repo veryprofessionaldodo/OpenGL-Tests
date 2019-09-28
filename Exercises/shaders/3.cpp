@@ -84,7 +84,7 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    Shader shader = Shader("/home/workingdodo/OpenGL-Tests/shaders/vertexColPosition.vs", "/home/workingdodo/OpenGL-Tests/shaders/basicShader.fs"); 
+    Shader shader = Shader("shaders/vertexColPosition.vs", "shaders/basicShader.fs"); 
     shader.use();
 
     glBindVertexArray(VAO);

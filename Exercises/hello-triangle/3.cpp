@@ -16,7 +16,7 @@ void process_input(GLFWwindow* window) {
 }
 
 string get_shader_source(string filename) {
-    string filepath = "/home/workingdodo/OpenGL-Tests/Exercises/shaders/" + filename; 
+    string filepath = "shaders/" + filename; 
     ifstream file(filepath);
     string shader_source = "";
     string line;
