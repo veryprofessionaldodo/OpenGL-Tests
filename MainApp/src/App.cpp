@@ -21,9 +21,22 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window, glm::vec3* camPos, float camSpeed, glm::vec3* camFront, glm::vec3* camUp) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);    
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        *camPos += camSpeed * *camFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        *camPos -= camSpeed * *camFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        *camPos -= glm::normalize(glm::cross(*camFront, *camUp)) * camSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        *camPos += glm::normalize(glm::cross(*camFront, *camUp)) * camSpeed;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        *camPos -= camSpeed * *camUp;
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        *camPos += camSpeed * *camUp;
 }
 
 void setMatrices() 
@@ -192,6 +205,9 @@ int main() {
     // Create canera
     glm::vec3 camPos = glm::vec3(0.0f, 1.0f, 3.0f);
     glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+    
+    glm::vec3 camFront = glm::vec3(0.0f, 0.0f, -1.0f);
+    glm::vec3 camUp = glm::vec3(0.0f, 1.0f, 0.0f);
     view = glm::lookAt(camPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
 
     // create transformations
@@ -219,9 +235,15 @@ int main() {
     //shader.use();    
     unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
-       
+    
+    float previousTime = glfwGetTime();
+    float deltaTime = 0;
+
     while(!glfwWindowShouldClose(window)) {
-        processInput(window);
+        deltaTime = glfwGetTime() - previousTime;
+        previousTime = glfwGetTime();
+
+        processInput(window, &camPos, 10.0f*deltaTime, &camFront, &camUp);
 
         glGetUniformfv(shader.ID, glGetUniformLocation(shader.ID, "mixValue"), &currentMixValue);
         if (glfwGetKey(window, GLFW_KEY_UP)) {
@@ -233,14 +255,12 @@ int main() {
             glUniform1f(glGetUniformLocation(shader.ID, "mixValue"), currentMixValue);
         }
 
-        camPos.x = sin(glfwGetTime()) * 3.0f;
-        camPos.z = cos(glfwGetTime()) * 3.0f;
         // Handle transforms
         model = glm::mat4(1.0f);
         model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));  
 
         view = glm::mat4(1.0f);
-        view = glm::lookAt(camPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::lookAt(camPos, camPos + camFront, camUp);
 
         projection = glm::mat4(1.0f);
         projection = glm::perspective(glm::radians(45.0f), (float) screenWidth/ (float) screenHeight, 0.01f, 100.0f);    
@@ -254,17 +274,6 @@ int main() {
 
         glClearColor(sin(color/2) , sin(color / 3), sin(color / 4), 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        /* 
-        float time = glfwGetTime();
-        float red = sin(time);
-        float green = sin(time/2);
-        float blue = sin(time*2);
-
-        unsigned int shader_color_location = glGetUniformLocation(shader_program, "shaderColor");
-
-        glUniform4f(shader_color_location, red, green, blue, 1.0f);
-        */
 
         // Will now draw information present from ELEMENT ARRAY BUFFER
         for (unsigned int i = 0; i < 10; i++) { 
