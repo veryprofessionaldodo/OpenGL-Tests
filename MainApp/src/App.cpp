@@ -11,6 +11,11 @@
 
 using namespace std;
 
+
+int screenWidth = 800, screenHeight = 600;
+glm::mat4 model, view, projection;
+Shader shader;
+
 // Update the glViewport based on the new size
 void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -19,6 +24,19 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);    
+}
+
+void setMatrices() 
+{
+    unsigned int modelLoc, viewLoc, projLoc;
+    
+    modelLoc = glGetUniformLocation(shader.ID, "model");
+    viewLoc = glGetUniformLocation(shader.ID, "view");
+    projLoc = glGetUniformLocation(shader.ID, "projection");
+
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 }
 
 int main() {
@@ -48,22 +66,53 @@ int main() {
      The third and fourth parameter set the width and height of the rendering window in pixels,
       which we set equal to GLFW's window size. 
      */
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, screenWidth, screenHeight);
 
     // Used when window is resized
     glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);  
 
     float vertices[] = {
-        // vertex info     // color info    // Tex Coords
-        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f
-    };
+       -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+       -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-    unsigned int indices[] = {
-        0,1,2,
-        1,2,3
+       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+       -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+       -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+       -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+       -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     
     // Generate vertex buffer object 
@@ -81,15 +130,11 @@ int main() {
     // Copy information from vertices to the vbo
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Generate EBO for index storage
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-    
     // Associate ELEMENT ARRAY BUFFER TO EBO and pass in indices information
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    Shader shader = Shader("shaders/transformShader.vs", "shaders/mixValue.fs"); 
+    shader = Shader("shaders/basicShader.vs", "shaders/mixValue.fs"); 
     shader.use();
 
     // Textures
@@ -130,26 +175,45 @@ int main() {
 
     // We use this to determine how the vertex information is processed. From learnopengl.com:
     // Position (location = 0)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);   
 
-    // Color (location = 1)
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3*sizeof(float)));
+    // TexCoords (location = 2)
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);   
 
-    // TexCoords (location = 2)
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
-    glEnableVertexAttribArray(2);   
+    glEnable(GL_DEPTH_TEST);
 
     // Render loop
     float color = 0;
     float currentMixValue = 0.2f;
     shader.setFloat("mixValue", currentMixValue);
+
+    // Create canera
+    glm::vec3 camPos = glm::vec3(0.0f, 1.0f, 3.0f);
+    glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+    view = glm::lookAt(camPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+
     // create transformations
     glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first    
+    /*
     transform = glm::translate(transform, glm::vec3(0.5f, 0.5f, 0.0f));
     transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     transform = glm::scale(transform, glm::vec3(0.5f,0.5f,0.5f));    
+    */
+
+    glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f, 0.0f, 0.0f),
+        glm::vec3( 2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f, 2.0f, -2.5f),
+        glm::vec3( 1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)
+    };
 
     // get matrix's uniform location and set matrix
     //shader.use();    
@@ -158,7 +222,6 @@ int main() {
        
     while(!glfwWindowShouldClose(window)) {
         processInput(window);
-
 
         glGetUniformfv(shader.ID, glGetUniformLocation(shader.ID, "mixValue"), &currentMixValue);
         if (glfwGetKey(window, GLFW_KEY_UP)) {
@@ -170,7 +233,19 @@ int main() {
             glUniform1f(glGetUniformLocation(shader.ID, "mixValue"), currentMixValue);
         }
 
+        camPos.x = sin(glfwGetTime()) * 3.0f;
+        camPos.z = cos(glfwGetTime()) * 3.0f;
+        // Handle transforms
+        model = glm::mat4(1.0f);
+        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));  
 
+        view = glm::mat4(1.0f);
+        view = glm::lookAt(camPos, target, glm::vec3(0.0f, 1.0f, 0.0f));
+
+        projection = glm::mat4(1.0f);
+        projection = glm::perspective(glm::radians(45.0f), (float) screenWidth/ (float) screenHeight, 0.01f, 100.0f);    
+
+        setMatrices();
 
         glfwSwapBuffers(window);
         glfwPollEvents();    
@@ -178,7 +253,7 @@ int main() {
         color += 0.01f; 
 
         glClearColor(sin(color/2) , sin(color / 3), sin(color / 4), 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         /* 
         float time = glfwGetTime();
@@ -192,7 +267,17 @@ int main() {
         */
 
         // Will now draw information present from ELEMENT ARRAY BUFFER
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        for (unsigned int i = 0; i < 10; i++) { 
+            glm::mat4 model;
+            float angle = 20.0f*i + (float) glfwGetTime() * 50.0f;
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            
+            shader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
     }
     
     shader.cleanup();

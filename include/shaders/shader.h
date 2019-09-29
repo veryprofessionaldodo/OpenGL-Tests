@@ -6,6 +6,10 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include "glm/glm.hpp"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 using namespace std;
 
@@ -21,6 +25,7 @@ class Shader
     
     // constructor reads and builds the shader
     Shader(string vertexPath, string fragmentPath);
+    Shader();
     
     // use/activate the shader
     void use();
@@ -30,6 +35,7 @@ class Shader
     void setInt(const string &name, int v) const;
     void setFloat(const string &name, float v) const;
     void setUniform3f(const string &name, float v1, float v2, float v3) const;
+    void setMat4(const string &name, glm::mat4 mat4) const;
 
     // Delete shader
     void cleanup();
