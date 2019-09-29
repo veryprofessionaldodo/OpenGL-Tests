@@ -17,8 +17,8 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height) {
 }
 
 void processInput(GLFWwindow* window) {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);    
 }
 
 int main() {
@@ -89,13 +89,16 @@ int main() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
 
-    Shader shader = Shader("shaders/basicShader.vs", "shaders/basicShader.fs"); 
+    Shader shader = Shader("shaders/transformShader.vs", "shaders/mixValue.fs"); 
     shader.use();
 
     // Textures
     unsigned int texID[2];
     glGenTextures(2, texID);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID[0]);
+    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -104,23 +107,21 @@ int main() {
     stbi_set_flip_vertically_on_load(true);
 
     int width, height, nrChannels;
-    unsigned char*data = stbi_load("res/container.jpg", &width, &height, &nrChannels, 0);    
+    unsigned char*data = stbi_load("res/container.jpg", &width, &height, &nrChannels, 0);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texID[0]);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE,data);
     glGenerateMipmap(GL_TEXTURE_2D);    
 
     stbi_image_free(data);
     data = stbi_load("res/awesomeface.png", &width, &height, &nrChannels, 0);
-    
+
     glActiveTexture(GL_TEXTURE1);
-    
     glBindTexture(GL_TEXTURE_2D, texID[1]);
+    
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,data);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    stbi_image_free(data);
+    // stbi_image_free(data);
 
     shader.setInt("texture1", 0);
     shader.setInt("texture2", 1);
@@ -142,9 +143,34 @@ int main() {
 
     // Render loop
     float color = 0;
+    float currentMixValue = 0.2f;
+    shader.setFloat("mixValue", currentMixValue);
+    // create transformations
+    glm::mat4 transform = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first    
+    transform = glm::translate(transform, glm::vec3(0.5f, 0.5f, 0.0f));
+    transform = glm::rotate(transform, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    transform = glm::scale(transform, glm::vec3(0.5f,0.5f,0.5f));    
 
+    // get matrix's uniform location and set matrix
+    //shader.use();    
+    unsigned int transformLoc = glGetUniformLocation(shader.ID, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+       
     while(!glfwWindowShouldClose(window)) {
         processInput(window);
+
+
+        glGetUniformfv(shader.ID, glGetUniformLocation(shader.ID, "mixValue"), &currentMixValue);
+        if (glfwGetKey(window, GLFW_KEY_UP)) {
+            currentMixValue += 0.01f;
+            glUniform1f(glGetUniformLocation(shader.ID, "mixValue"), currentMixValue);
+        }
+        else if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+            currentMixValue -= 0.01f;
+            glUniform1f(glGetUniformLocation(shader.ID, "mixValue"), currentMixValue);
+        }
+
+
 
         glfwSwapBuffers(window);
         glfwPollEvents();    
