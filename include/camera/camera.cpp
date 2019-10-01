@@ -12,6 +12,8 @@ Camera::Camera() {
   up = glm::vec3(0.0f, 1.0f, 0.0f);
 
   speed = 10.0f;
+
+  firstMouse = true;
 }
 
 void Camera::setModel(glm::mat4 newModel) { model = newModel; }
@@ -46,3 +48,30 @@ void Camera::updateCamera(GLFWwindow *window, float deltaTime) {
   setProjection(glm::perspective(glm::radians(45.0f), (float)800 / (float)600,
                                  0.01f, 100.0f));
 }
+
+void Camera::mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+  if (firstMouse) {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+  float xoffset = xpos - lastX;
+  float yoffset = lastY - ypos;
+  lastX = xpos;
+  lastY = ypos;
+  float sensitivity = 0.05;
+  xoffset *= sensitivity;
+  yoffset *= sensitivity;
+  yaw += xoffset;
+  pitch += yoffset;
+  if (pitch > 89.0f)
+    pitch = 89.0f;
+  if (pitch < -89.0f)
+    pitch = -89.0f;
+  glm::vec3 front;
+  front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+  front.y = sin(glm::radians(pitch));
+  front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+  cameraFront = glm::normalize(front);
+}
+)

@@ -177,6 +177,9 @@ int main() {
   // Create canera
   Camera cam = Camera();
 
+  // Used for getting mouse input
+  glfwSetCursorPosCallback(window, cam.mouse_callback);
+
   // Set view
   cam.setView(glm::lookAt(cam.pos, cam.target, glm::vec3(0.0f, 1.0f, 0.0f)));
 

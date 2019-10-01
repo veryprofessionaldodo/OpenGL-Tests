@@ -20,6 +20,12 @@ public:
   glm::mat4 view;
   glm::mat4 projection;
 
+  // Mouse Input
+  bool firstMouse;
+  float lastX;
+  float lastY;
+  float yaw, pitch;
+
   float speed;
   glm::vec3 front;
   glm::vec3 up;
@@ -32,6 +38,7 @@ public:
   void setProjection(glm::mat4 newProjection);
 
   void updateCamera(GLFWwindow *window, float deltaTime);
+  void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 };
 
 #endif
