@@ -15,6 +15,39 @@ using namespace std;
 
 int screenWidth = 800, screenHeight = 600;
 Shader shader;
+Camera cam;
+
+// Camera Mouse handling
+bool firstMouse;
+int lastX = screenWidth / 2;
+int lastY = screenHeight / 2;
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
+  if (firstMouse) {
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
+  }
+  float xoffset = xpos - lastX;
+  float yoffset = lastY - ypos;
+  lastX = xpos;
+  lastY = ypos;
+  float sensitivity = 0.05;
+  xoffset *= sensitivity;
+  yoffset *= sensitivity;
+  cam.yaw += xoffset;
+  cam.pitch += yoffset;
+  if (cam.pitch > 89.0f)
+    cam.pitch = 89.0f;
+  if (cam.pitch < -89.0f)
+    cam.pitch = -89.0f;
+  glm::vec3 front;
+
+  front.x = cos(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
+  front.y = sin(glm::radians(cam.pitch));
+  front.z = sin(glm::radians(cam.yaw)) * cos(glm::radians(cam.pitch));
+  cam.front = glm::normalize(front);
+}
 
 // Update the glViewport based on the new size
 void framebufferSizeCallback(GLFWwindow *window, int width, int height) {
@@ -51,6 +84,8 @@ int main() {
     glfwTerminate();
     return -1;
   }
+
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // Set the current context to the windo's
   glfwMakeContextCurrent(window);
@@ -175,10 +210,10 @@ int main() {
   shader.setFloat("mixValue", currentMixValue);
 
   // Create canera
-  Camera cam = Camera();
+  cam = Camera();
 
   // Used for getting mouse input
-  glfwSetCursorPosCallback(window, cam.mouse_callback);
+  glfwSetCursorPosCallback(window, mouse_callback);
 
   // Set view
   cam.setView(glm::lookAt(cam.pos, cam.target, glm::vec3(0.0f, 1.0f, 0.0f)));
